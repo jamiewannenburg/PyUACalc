@@ -1,3 +1,4 @@
+#run setup.py sdist or python setup.py bdist_wininst
 from distutils.core import setup
 setup(name='PyUACalc',
       version='0.1',

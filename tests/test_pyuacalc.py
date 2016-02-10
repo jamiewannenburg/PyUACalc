@@ -18,7 +18,7 @@ class TestAlgebraHandler(unittest.TestCase):
         parser.parse('tests/examples/test.ua')
 
     def test_cardinality(self):
-        self.assertEqual( self.Handler.cardinality, 300)
+        self.assertEqual( self.Handler.cardinality, 5)
  
     def test_operations(self):
         self.assertItemsEqual(self.Handler.operations.keys(), ['e','neg','dot','R'])
@@ -47,7 +47,7 @@ class TestAlgebra(unittest.TestCase):
 
 class TestMakeExpression(unittest.TestCase):
     
-    def test_default_constants(self):
+    def test_constants(self):
         e = make_expression({'e':0,'neg':1,'dot':2,'R':3})
         e.setParseAction(lambda s,l,t: t[0]+'('+','.join(t[1:])+')')
         result = e.parseString('dot(neg(e()),e())')[0]
