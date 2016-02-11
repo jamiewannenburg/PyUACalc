@@ -1,7 +1,7 @@
 PyUACalc
 =====
 
-This is a python package what wraps around [UACalc](http://www.uacalc.org/) `.ua` (xml) files. Operations are converted to numpy arrays. 
+This is a python package what wraps around [UACalc](http://www.uacalc.org/) `.ua` (xml) files. Operations are converted to numpy arrays. You can download the compressed packadge or a windows installer at http://www.jamiewannenburg.com/binaries.
 
 
 # Importing
