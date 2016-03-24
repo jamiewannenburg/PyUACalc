@@ -273,7 +273,7 @@ def make_expression(arities):
     combine = op_list[0]
     for op in op_list[1:]:
         combine = combine | op
-    combine = combine | pp.Word(pp.alphas,pp.nums)
+    combine = combine | pp.Word('xyz_'+pp.nums) #
     expr << combine
     
     return expr
