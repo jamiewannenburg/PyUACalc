@@ -50,6 +50,12 @@ class Algebra:
         self.expr_sub = make_expression(self.arities)
         self.expr_sub.setParseAction( self._substitute_action )
     
+        self.expr_sub_str = make_expression(self.arities)
+        self.expr_sub_str.setParseAction( self._substitute_str_action )
+        
+        self.expr_vars = make_expression(self.arities)
+        self.expr_vars.setParseAction( self._get_vars_action )
+        
     def _string_action(self,s,l,t):
         op = t[0]
         args = t[1:]
@@ -70,6 +76,29 @@ class Algebra:
                 
         except KeyError:
             return op + '(' + ','.join(args) + ')'
+        
+    def _substitute_str_action(self,s,l,t):
+        op = t[0]
+        args = t[1:]
+        if op in self.arities:
+            return op + '(' + ','.join(args) + ')'
+        else:
+            try:
+                return self._str_substitution[op]
+            except KeyError:
+                return op
+        
+        
+    def _get_vars_action(self,s,l,t):
+        op = t[0]
+        args = t[1:]
+        if op in self.arities:
+            vars = set([])
+            for arg in args:
+                vars.update(arg)
+            return vars
+        else:
+            return set([op])
         
     def _substitute_action(self,s,l,t):
         op = t[0]
@@ -95,6 +124,55 @@ class Algebra:
         self._substitution = substitution
         parse_result = self.expr_sub.parseString( my_string )
         return parse_result[0]
+    
+    def substitute_str(self,substitution,my_string):
+        self._str_substitution = substitution
+        parse_result = self.expr_sub_str.parseString( my_string )
+        return parse_result[0]
+    
+    def get_variables(self,my_string):
+        parse_result = self.expr_vars.parseString( my_string )
+        return parse_result[0]
+        
+    
+    def check_equation(self,left,right,variables=None):
+        "variables can be None, a list, a set or a comma seperated string of variables."
+        if variables == None:
+            # get variables for this equations
+            variables = self.get_variables(left)
+            variables.update( self.get_variables(right) )
+            variables = list(variables)
+        elif isinstance(variables,str):
+            variables = variables.split(',')
+        elif isinstance(variables,set):
+            variables = list(variables)
+            
+        var_num = len(variables)
+        # print "Checking %d posibilities"%(self.cardinality**var_num)
+        for a in itertools.product(range(self.cardinality),repeat=var_num):
+            sub = to_sub(a,variables)
+            if self.substitute(sub,left) != self.substitute(sub,right):
+                print ''
+                print "Failure at %s: %s = %s"%(str(a),self.make_readable(left),self.make_readable(right))
+                return False
+        return True
+                
+    def check_equations(self,equations):
+        eq_num = len(equations)
+        print "Checking %d equations:"%(eq_num)
+        for i,t in enumerate(equations):
+            print "%d of %d\r"%(i+1,eq_num),
+            if len(t) > 2:
+                if not self.check_equation(t[0],t[1], variables=t[2]):
+                    return False
+            else:
+                if not self.check_equation(t[0],t[1]):
+                    return False
+        return True
+        
+    def check_quasi_equation(self,premeses,equations):
+        # TODO
+        pass
     
     def get_graph(self,G = None):
         """Write elements to the given graph. Or write a new graph. Requires pygraphviz."""
@@ -277,4 +355,13 @@ def make_expression(arities):
     expr << combine
     
     return expr
+    
+
+def to_sub(a,vars):
+    result = {}
+    for i,var in enumerate(vars):
+        result[var] = a[i]
+        
+    return result
+
     
